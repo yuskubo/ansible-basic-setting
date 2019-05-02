@@ -1,0 +1,5 @@
+---
+- hosts: development, bastion
+  become: yes
+  roles:
+    - user
