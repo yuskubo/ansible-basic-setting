@@ -1,0 +1,5 @@
+---
+- name: 開発で利用するパッケージのインストール
+  yum:
+    name: "{{ item.name }}"
+  with_items: "{{ development_package }}"

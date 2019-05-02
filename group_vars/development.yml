@@ -1,0 +1,1 @@
+ansible_ssh_common_args: '-o ProxyCommand="ssh -i ~/.ssh/id_rsa_bastion -W %h:%p -q system-admin@192.168.0.9"'

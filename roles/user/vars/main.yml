@@ -1,0 +1,59 @@
+# システムユーザグループ
+system_user_group:
+  - name: 'system-admin'
+    id: 1001
+
+# アプリユーザグループ
+app_user_group:
+  - name: 'app-admin'
+    id: 1002
+
+# 開発管理者グループ
+developer_admin_user_group:
+  - name: 'developer-admin'
+    id: 1003
+
+# 開発者グループ
+developer_user_group:
+  - name: 'developer'
+    id: 1004
+
+
+
+# システムユーザ
+system_user:
+  - name: 'system-admin'
+    group: 'system-admin'
+
+system_admin_sudo_right:
+  - name: 'system-admin'
+    line: 'system-admin ALL=(ALL) NOPASSWD: ALL'
+
+
+
+# アプリ実行ユーザ
+admin_user:
+  - name: 'app-admin'
+    group: 'app-admin'
+
+app_admin_sudo_right:
+  - name: 'app-admin'
+    line: 'app-admin ALL=(ALL) NOPASSWD: ALL'
+
+
+
+# 開発管理者ユーザ
+developer_admin_user:
+  - name: 'hoge-admin'
+    group: 'developer-admin'
+
+developer_admin_sudo_right:
+  - name: 'hoge-admin'
+    line: 'hoge-admin ALL=(ALL) NOPASSWD: ALL'
+
+
+
+# 開発用ユーザ
+development_user:
+  - name: 'hoge'
+    group: 'developer'

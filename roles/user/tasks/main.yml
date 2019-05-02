@@ -1,0 +1,166 @@
+---
+- name: システムユーザグループの追加
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.id }}"
+  with_items: "{{ system_user_group }}"
+
+- name: アプリ実行ユーザグループの追加
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.id }}"
+  with_items: "{{ app_user_group }}"
+  when: inventory_hostname in groups ['development']
+
+- name: 開発管理者グループの追加
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.id }}"
+  with_items: "{{ developer_admin_user_group }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
+
+- name: 開発者グループの追加
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.id }}"
+  with_items: "{{ developer_user_group }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
+
+
+
+- name: ssh接続用ユーザの追加
+  user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+  with_items: "{{ system_user }}"
+
+- name: ssh接続用ユーザの.ssh作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0700
+  with_items: "{{ system_user }}"
+
+- name: ssh接続用ユーザのauthorized_keys作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/authorized_keys
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0600
+  with_items: "{{ system_user }}"
+
+- name: ssh接続用ユーザにsudo権限付与
+  lineinfile:
+    dest: /etc/sudoers.d/{{ item.name }}
+    state: present
+    create: yes
+    line: "{{ item.line }}"
+  with_items: "{{ system_admin_sudo_right }}"
+
+
+
+- name: アプリユーザの追加
+  user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+  with_items: "{{ admin_user }}"
+  when: inventory_hostname in groups ['development']
+
+- name: アプリ実行ユーザの.ssh作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0700
+  with_items: "{{ admin_user }}"
+  when: inventory_hostname in groups ['development']
+
+- name: アプリ実行ユーザのauthorized_keys作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/authorized_keys
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0600
+  with_items: "{{ admin_user }}"
+  when: inventory_hostname in groups ['development']
+
+- name: アプリ実行ユーザにsudo権限付与
+  lineinfile:
+    dest: /etc/sudoers.d/{{ item.name }}
+    state: present
+    create: yes
+    line: "{{ item.line }}"
+  with_items: "{{ app_admin_sudo_right }}"
+  when: inventory_hostname in groups ['development']
+
+
+
+- name: 開発管理者ユーザの追加
+  user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+  with_items: "{{ developer_admin_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
+
+- name: 開発管理者ユーザの.ssh作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0700
+  with_items: "{{ developer_admin_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
+
+- name: 開発管理者ユーザのauthorized_keys作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/authorized_keys
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0600
+  with_items: "{{ developer_admin_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
+
+- name: 開発管理者ユーザにsudo権限付与
+  lineinfile:
+    dest: /etc/sudoers.d/{{ item.name }}
+    state: present
+    create: yes
+    line: "{{ item.line }}"
+  with_items: "{{ developer_admin_sudo_right }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
+
+
+
+- name: 開発ユーザの追加
+  user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+  with_items: "{{ development_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
+
+- name: 開発ユーザの.ssh作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0700
+  with_items: "{{ development_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
+
+- name: 開発ユーザのauthorized_keys作成
+  file:
+    dest: /home/{{ item.name }}/.ssh/authorized_keys
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0600
+  with_items: "{{ development_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
