@@ -1,5 +1,9 @@
 ---
-- name: 開発で利用するパッケージのインストール
+- name: タイムゾーンの変更
+  timezone:
+    name: Asia/Tokyo
+
+- name: 全サーバで利用するパッケージのインストール
   yum:
     name: "{{ item.name }}"
   with_items: "{{ development_package }}"

@@ -1,0 +1,13 @@
+---
+# 開発用パッケージ
+development_package:
+  - name: '@development'
+    state: latest
+  - name: openssl-devel
+    state: latest
+  - name: libyaml-devel
+    state: latest
+  - name: readline-devel
+    state: latest
+  - name: libffi-devel
+    state: latest

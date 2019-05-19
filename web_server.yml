@@ -1,0 +1,5 @@
+---
+- hosts: development
+  become: yes
+  roles:
+    - web_server
