@@ -1,13 +1,30 @@
 ---
-# 開発用パッケージ
 development_package:
-  - name: '@development'
-    state: latest
-  - name: openssl-devel
-    state: latest
-  - name: libyaml-devel
-    state: latest
-  - name: readline-devel
-    state: latest
+  - name: gcc
+    state: present
+  - name: gcc-c++
+    state: present
   - name: libffi-devel
-    state: latest
+    state: present
+  - name: libxml2-devel
+    state: present
+  - name: libxslt
+    state: present
+  - name: libxslt-devel
+    state: present
+  - name: libyaml-devel
+    state: present
+  - name: mysql
+    state: present
+  - name: mysql-devel
+    state: present
+  - name: nginx
+    state: present
+  - name: openssl-devel
+    state: present
+  - name: readline-devel
+    state: present
+  - name: sqlite-devel
+    state: present
+  - name: zlib-devel
+    state: present
