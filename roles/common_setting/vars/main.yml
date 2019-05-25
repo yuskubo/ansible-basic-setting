@@ -1,10 +1,14 @@
 ---
-# 開発用パッケージ
-development_package:
+common_package:
   - name: git
-    state: latest
-  - name: tmux
-    state: latest
+    state: present
+  - name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
   - name: iotop
-    state: latest
+    state: present
+  - name: tmux
+    state: present
+  - name: tree
+    state: present
 
+repo_files: epel.repo
