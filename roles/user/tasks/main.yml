@@ -1,40 +1,38 @@
 ---
-- name: システムユーザグループの追加
+- name: Add system user group
   group:
     name: "{{ item.name }}"
     gid: "{{ item.id }}"
   with_items: "{{ system_user_group }}"
 
-- name: アプリ実行ユーザグループの追加
+- name: Add app user group
   group:
     name: "{{ item.name }}"
     gid: "{{ item.id }}"
   with_items: "{{ app_user_group }}"
   when: inventory_hostname in groups ['development']
 
-- name: 開発管理者グループの追加
+- name: Add developer admin group
   group:
     name: "{{ item.name }}"
     gid: "{{ item.id }}"
   with_items: "{{ developer_admin_user_group }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
 
-- name: 開発者グループの追加
+- name: Add developer group
   group:
     name: "{{ item.name }}"
     gid: "{{ item.id }}"
   with_items: "{{ developer_user_group }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
 
-
-
-- name: ssh接続用ユーザの追加
+- name: Add system user
   user:
     name: "{{ item.name }}"
     group: "{{ item.group }}"
   with_items: "{{ system_user }}"
 
-- name: ssh接続用ユーザの.ssh作成
+- name: Make .ssh of system user
   file:
     dest: /home/{{ item.name }}/.ssh/
     state: directory
@@ -43,7 +41,7 @@
     mode: 0700
   with_items: "{{ system_user }}"
 
-- name: ssh接続用ユーザのauthorized_keys作成
+- name: Make authorized_keys of system user
   file:
     dest: /home/{{ item.name }}/.ssh/authorized_keys
     state: touch
@@ -52,7 +50,17 @@
     mode: 0600
   with_items: "{{ system_user }}"
 
-- name: ssh接続用ユーザにsudo権限付与
+- name: Make .tmux.conf of system user
+  copy:
+    src:   roles/user/files/.tmux.conf
+    dest:  /home/{{ item.name }}/.tmux.conf
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0644
+  with_items: "{{ system_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
+
+- name: Add sudo right to system user
   lineinfile:
     dest: /etc/sudoers.d/{{ item.name }}
     state: present
@@ -60,16 +68,14 @@
     line: "{{ item.line }}"
   with_items: "{{ system_admin_sudo_right }}"
 
-
-
-- name: アプリユーザの追加
+- name: Add application user
   user:
     name: "{{ item.name }}"
     group: "{{ item.group }}"
   with_items: "{{ admin_user }}"
   when: inventory_hostname in groups ['development']
 
-- name: アプリ実行ユーザの.ssh作成
+- name: Make .ssh of application user
   file:
     dest: /home/{{ item.name }}/.ssh/
     state: directory
@@ -79,7 +85,7 @@
   with_items: "{{ admin_user }}"
   when: inventory_hostname in groups ['development']
 
-- name: アプリ実行ユーザのauthorized_keys作成
+- name: Make authorized_keys of application user
   file:
     dest: /home/{{ item.name }}/.ssh/authorized_keys
     state: touch
@@ -89,7 +95,17 @@
   with_items: "{{ admin_user }}"
   when: inventory_hostname in groups ['development']
 
-- name: アプリ実行ユーザにsudo権限付与
+- name: Make .tmux.conf .ssh of application user
+  copy:
+    src:   roles/user/files/.tmux.conf
+    dest:  /home/{{ item.name }}/.tmux.conf
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0644
+  with_items: "{{ admin_user }}"
+  when: inventory_hostname in groups ['development']
+
+- name: Add sudo right to application user
   lineinfile:
     dest: /etc/sudoers.d/{{ item.name }}
     state: present
@@ -98,16 +114,14 @@
   with_items: "{{ app_admin_sudo_right }}"
   when: inventory_hostname in groups ['development']
 
-
-
-- name: 開発管理者ユーザの追加
+- name: Add developer admin user
   user:
     name: "{{ item.name }}"
     group: "{{ item.group }}"
   with_items: "{{ developer_admin_user }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
 
-- name: 開発管理者ユーザの.ssh作成
+- name: Make .ssh of developer admin user
   file:
     dest: /home/{{ item.name }}/.ssh/
     state: directory
@@ -117,7 +131,7 @@
   with_items: "{{ developer_admin_user }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
 
-- name: 開発管理者ユーザのauthorized_keys作成
+- name: Make authorized_keys of developer admin user
   file:
     dest: /home/{{ item.name }}/.ssh/authorized_keys
     state: touch
@@ -127,7 +141,17 @@
   with_items: "{{ developer_admin_user }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
 
-- name: 開発管理者ユーザにsudo権限付与
+- name: Make .tmux.conf of developer admin user
+  file:
+    dest: /home/{{ item.name }}/.tmux.conf
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0644
+  with_items: "{{ developer_admin_user }}"
+  when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
+
+- name: Add sudo right to developer admin user
   lineinfile:
     dest: /etc/sudoers.d/{{ item.name }}
     state: present
@@ -136,16 +160,14 @@
   with_items: "{{ developer_admin_sudo_right }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion'] or inventory_hostname in groups ['localhost']
 
-
-
-- name: 開発ユーザの追加
+- name: Add developer user
   user:
     name: "{{ item.name }}"
     group: "{{ item.group }}"
   with_items: "{{ development_user }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
 
-- name: 開発ユーザの.ssh作成
+- name: Make .ssh of developer user
   file:
     dest: /home/{{ item.name }}/.ssh/
     state: directory
@@ -155,7 +177,7 @@
   with_items: "{{ development_user }}"
   when: inventory_hostname in groups ['development'] or inventory_hostname in groups ['bastion']
 
-- name: 開発ユーザのauthorized_keys作成
+- name: Make authorized_keys of developer user
   file:
     dest: /home/{{ item.name }}/.ssh/authorized_keys
     state: touch

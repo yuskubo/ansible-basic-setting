@@ -1,4 +1,78 @@
-- name: 開発で利用するパッケージのインストール
+---
+- name: Check if ruby installed
+  shell: "amazon-linux-extras | grep nginx"
+  failed_when: False
+  changed_when: False
+  check_mode: no
+  register: nginx_result
+
+- name: Enable to install NGINX.
+  shell: "amazon-linux-extras enable nginx1.12"
+  when: "'enabled' not in nginx_result.stdout"
+
+- name: Install development packages
   yum:
     name: "{{ item.name }}"
   with_items: "{{ development_package }}"
+  when: inventory_hostname in groups ['development']
+
+- name: Install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /usr/local/rbenv
+
+- name: Copy rbenv.sh
+  copy:
+    src:  roles/web_server/files/rbenv.sh
+    dest: /etc/profile.d/rbenv.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /usr/local/rbenv/plugins/ruby-build
+
+- name: Install rbenv-update
+  git:
+    repo: https://github.com/rkh/rbenv-update.git
+    dest: /usr/local/rbenv/plugins/rbenv-update
+
+- name: Check if ruby installed
+  shell: bash -lc "ruby -v"
+  failed_when: False
+  changed_when: False
+  check_mode: no
+  register: ruby_result
+
+- name: Install ruby
+  shell: bash -lc "rbenv install --skip-existing 2.6.3"
+  when: "'ruby 2.6.3' not in ruby_result.stdout"
+
+- name: Check rbenv global
+  shell: bash -lc "rbenv versions"
+  failed_when: False
+  changed_when: False
+  check_mode: no
+  register: rbenv_global_result
+
+- name: Set global
+  shell: bash -lc "rbenv global 2.6.3"
+  when: "'2.6.3 (set by /usr/local/rbenv/version)' not in rbenv_global_result.stdout"
+
+- name: Check gem version
+  shell: bash -lc "gem -v"
+  failed_when: False
+  changed_when: False
+  check_mode: no
+  register: gem_result
+
+- name: Install Bundler
+  gem:
+    name: bundler
+    user_install: no
+    include_doc: no
+    pre_release: no
+    executable: /usr/local/rbenv/shims/gem
+  when: gem_result.rc == 0

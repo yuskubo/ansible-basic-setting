@@ -1,9 +1,29 @@
 ---
-- name: タイムゾーンの変更
+- name: Change timezone
   timezone:
     name: Asia/Tokyo
 
-- name: 全サーバで利用するパッケージのインストール
+- name: Install yum package
   yum:
     name: "{{ item.name }}"
-  with_items: "{{ development_package }}"
+  with_items: "{{ common_package }}"
+
+- name: Check if epel.repo directory exists
+  stat:
+    path: "/etc/yum.repos.d/epel.repo"
+  register: epel_repo_check_result
+
+- name: Disalbe yum repos
+  replace:
+    dest: /etc/yum.repos.d/{{ item }}
+    regexp: "enabled *= *1"
+    replace: "enabled=0"
+  with_items: "{{ repo_files }}"
+  when: epel_repo_check_result.stat.exists
+
+- name: Start service psacct, if not started
+  systemd:
+    name: psacct
+    state: stopped
+    daemon_reload: yes
+    enabled: yes
